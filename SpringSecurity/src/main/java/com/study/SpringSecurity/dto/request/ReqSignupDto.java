@@ -1,9 +1,13 @@
 package com.study.SpringSecurity.dto.request;
 
+import com.study.SpringSecurity.domain.entity.Role;
 import com.study.SpringSecurity.domain.entity.User;
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.validation.constraints.Pattern;
+import java.util.Set;
 
 @Data
 public class ReqSignupDto {
@@ -15,10 +19,10 @@ public class ReqSignupDto {
     @Pattern(regexp = "^[가-힣]+$", message = "이름은 한글이어야합니다.")
     private String name;
 
-    public User toEntity() {
+    public User toEntity(BCryptPasswordEncoder passwordEncoder) {
         return User.builder()
                 .username(username)
-                .password(password)
+                .password(passwordEncoder.encode(password))
                 .name(name)
                 .build();
     }
