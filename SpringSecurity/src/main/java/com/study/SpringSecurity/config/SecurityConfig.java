@@ -24,10 +24,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // JWT 등의 토큰 인증방식을 사용할 때 설정하는 것.
         http.cors();
         http.authorizeRequests()
-                .antMatchers("/auth/**")
+                .antMatchers("/auth/**", "/h2-console/**", "/test/**")
                 .permitAll()
                 .anyRequest()
-                .authenticated();
+                .authenticated()
+                .and()
+                .headers()
+                .frameOptions()
+                .disable();
     }
 
 }
