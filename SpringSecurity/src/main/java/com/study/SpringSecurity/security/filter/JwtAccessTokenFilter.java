@@ -1,21 +1,29 @@
 package com.study.SpringSecurity.security.filter;
 
+import com.study.SpringSecurity.domain.entity.User;
+import com.study.SpringSecurity.repository.UserRepository;
 import com.study.SpringSecurity.security.jwt.JwtProvider;
+import com.study.SpringSecurity.security.principal.PrincipalUser;
 import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.net.http.HttpHeaders;
+import java.util.Optional;
 
 @Component
 public class JwtAccessTokenFilter extends GenericFilter {
 
     @Autowired
     private JwtProvider jwtProvider;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
@@ -32,11 +40,16 @@ public class JwtAccessTokenFilter extends GenericFilter {
                 filterChain.doFilter(servletRequest, servletResponse);
                 return;
             }
+            Long userId = ((Integer) claims.get("userId")).longValue();
+            Optional<User> optionalUser = userRepository.findById(userId);
+            if(optionalUser.isEmpty()) {
+                filterChain.doFilter(servletRequest, servletResponse);
+                return;
+            }
 
-            Long userId = (Long) claims.get("userId");
-
-            System.out.println("예외 발생하지 않음");
-            SecurityContextHolder.getContext().setAuthentication(null);
+            PrincipalUser principalUser = optionalUser.get().toPrincipalUser();
+            Authentication authentication = new UsernamePasswordAuthenticationToken(principalUser, principalUser.getPassword(), principalUser.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 
         filterChain.doFilter(servletRequest, servletResponse);

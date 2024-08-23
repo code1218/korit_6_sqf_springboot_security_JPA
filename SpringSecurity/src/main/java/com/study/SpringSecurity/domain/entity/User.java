@@ -1,6 +1,7 @@
 package com.study.SpringSecurity.domain.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.study.SpringSecurity.security.principal.PrincipalUser;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -38,4 +39,13 @@ public class User {
 
 //    @OneToMany(mappedBy = "user")
 //    private Set<UserRole> userRoles = new HashSet<>();
+
+    public PrincipalUser toPrincipalUser() {
+        return PrincipalUser.builder()
+                .userId(id)
+                .username(username)
+                .password(password)
+                .roles(roles)
+                .build();
+    }
 }
