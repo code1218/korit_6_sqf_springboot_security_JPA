@@ -1,11 +1,13 @@
 package com.study.SpringSecurity.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -33,4 +35,7 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<Role> roles;
+
+//    @OneToMany(mappedBy = "user")
+//    private Set<UserRole> userRoles = new HashSet<>();
 }

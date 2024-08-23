@@ -1,5 +1,7 @@
 package com.study.SpringSecurity.config;
 
+import com.study.SpringSecurity.security.filter.JwtAccessTokenFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -7,10 +9,14 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @EnableWebSecurity  // 우리가 만든 SecurityConfig를 적용시키겠다.
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Autowired
+    private JwtAccessTokenFilter jwtAccessTokenFilter;
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -31,7 +37,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // JWT 등의 토큰 인증방식을 사용할 때 설정하는 것.
         http.cors();
         http.authorizeRequests()
-                .antMatchers("/auth/**", "/h2-console/**", "/test/**")
+                .antMatchers("/auth/**", "/h2-console/**")
                 .permitAll()
                 .anyRequest()
                 .authenticated()
@@ -39,6 +45,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .headers()
                 .frameOptions()
                 .disable();
+
+        http.addFilterBefore(jwtAccessTokenFilter, UsernamePasswordAuthenticationFilter.class);
     }
 
 }
