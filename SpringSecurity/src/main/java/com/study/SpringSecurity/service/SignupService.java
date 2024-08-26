@@ -25,10 +25,14 @@ public class SignupService {
     @Transactional(rollbackFor = Exception.class)
     public User signup(ReqSignupDto dto) {
         User user = dto.toEntity(passwordEncoder);
-        Role role = roleRepository.findByName("ROLE_USER").orElseGet(
+        Role roleUser = roleRepository.findByName("ROLE_USER").orElseGet(
                 () -> roleRepository.save(Role.builder().name("ROLE_USER").build())
         );
-        user.setRoles(Set.of(role));
+        Role roleManager = roleRepository.findByName("ROLE_MANAGER").orElseGet(
+                () -> roleRepository.save(Role.builder().name("ROLE_MANAGER").build())
+        );
+
+        user.setRoles(Set.of(roleUser, roleManager));
         user = userRepository.save(user);
 
 //        UserRole userRole = UserRole.builder()
