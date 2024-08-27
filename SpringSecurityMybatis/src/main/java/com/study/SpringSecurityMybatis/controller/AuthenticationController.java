@@ -1,6 +1,7 @@
 package com.study.SpringSecurityMybatis.controller;
 
 import com.study.SpringSecurityMybatis.aspect.annotation.ValidAop;
+import com.study.SpringSecurityMybatis.dto.request.ReqSigninDto;
 import com.study.SpringSecurityMybatis.dto.request.ReqSignupDto;
 import com.study.SpringSecurityMybatis.exception.SignupException;
 import com.study.SpringSecurityMybatis.service.UserService;
@@ -25,6 +26,12 @@ public class AuthenticationController {
     @PostMapping("/auth/signup")
     public ResponseEntity<?> signup(@Valid @RequestBody ReqSignupDto dto, BindingResult bindingResult) throws SignupException {
         return ResponseEntity.ok().body(userService.insertUserAndUserRoles(dto));
+    }
+
+    @ValidAop
+    @PostMapping("/auth/signin")
+    public ResponseEntity<?> signin(@Valid @RequestBody ReqSigninDto dto, BindingResult bindingResult) {
+        return ResponseEntity.ok().body(userService.getGeneratedAccessToken(dto));
     }
 
 }
