@@ -5,14 +5,17 @@ import com.study.SpringSecurityMybatis.dto.response.RespSignupDto;
 import com.study.SpringSecurityMybatis.entity.Role;
 import com.study.SpringSecurityMybatis.entity.User;
 import com.study.SpringSecurityMybatis.entity.UserRoles;
+import com.study.SpringSecurityMybatis.exception.SignupException;
 import com.study.SpringSecurityMybatis.repository.RoleMapper;
 import com.study.SpringSecurityMybatis.repository.UserMapper;
 import com.study.SpringSecurityMybatis.repository.UserRolesMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.swing.text.html.Option;
+import java.sql.SQLException;
 import java.util.Optional;
 import java.util.Set;
 
@@ -35,25 +38,31 @@ public class UserService {
         return Optional.ofNullable(userMapper.findByUsername(username)).isPresent();
     }
 
-    public RespSignupDto insertUserAndUserRoles(ReqSignupDto dto) {
-        User user = dto.toEntity(passwordEncoder);
-        userMapper.save(user);
+    @Transactional(rollbackFor = SignupException.class)
+    public RespSignupDto insertUserAndUserRoles(ReqSignupDto dto) throws SignupException {
+        User user = null;
+        try {
+            user = dto.toEntity(passwordEncoder);
+            userMapper.save(user);
 
-        Role role = roleMapper.findByName("ROLE_USER");
+            Role role = roleMapper.findByName("ROLE_USER");
 
-        if(role == null) {
-            role = Role.builder().name("ROLE_USER").build();
-            roleMapper.save(role);
+            if (role == null) {
+                role = Role.builder().name("ROLE_USER").build();
+                roleMapper.save(role);
+            }
+
+            UserRoles userRoles = UserRoles.builder()
+                    .userId(user.getId())
+                    .roleId(role.getId())
+                    .build();
+
+            userRolesMapper.save(userRoles);
+
+            user.setUserRoles(Set.of(userRoles));
+        } catch (Exception e) {
+            throw new SignupException(e.getMessage());
         }
-
-        UserRoles userRoles = UserRoles.builder()
-                .userId(user.getId())
-                .roleId(role.getId())
-                .build();
-
-        userRolesMapper.save(userRoles);
-
-        user.setUserRoles(Set.of(userRoles));
 
         return RespSignupDto.builder()
                 .message("회원가입 완료")
