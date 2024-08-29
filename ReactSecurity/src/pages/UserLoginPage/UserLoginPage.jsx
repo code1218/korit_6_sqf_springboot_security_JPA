@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-/** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import { Link, useNavigate } from 'react-router-dom';
-import { signupApi } from '../../apis/signupApi';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { signinApi } from '../../apis/signinApi';
+/** @jsxImportSource @emotion/react */
 
 const layout = css`
     display: flex;
@@ -16,7 +16,7 @@ const logo = css`
     margin-bottom: 40px;
 `
 
-const joinInfoBox = css`
+const loginInfoBox = css`
     display: flex;
     flex-direction: column;
     margin-bottom: 20px;
@@ -57,7 +57,7 @@ const joinInfoBox = css`
     }
 `;
 
-const joinButton = css`
+const loginButton = css`
     border: none;
     border-radius: 10px;
     width: 100%;
@@ -69,23 +69,15 @@ const joinButton = css`
     cursor: pointer;
 `;
 
-function UserJoinPage(props) {
-    const navigate = useNavigate();
-
+function UserLoginPage(props) {
     const [ inputUser, setInputUser ] = useState({
         username: "",
         password: "",
-        checkPassword: "",
-        name: "",
-        email: ""
     });
 
     const [ fieldErrorMessages, setFieldErrorMessages ] = useState({
         username: <></>,
         password: <></>,
-        checkPassword: <></>,
-        name: <></>,
-        email: <></>,
     }); 
 
     const handleInputUserOnChange = (e) => {
@@ -95,24 +87,10 @@ function UserJoinPage(props) {
         }));
     }
 
-    const handleJoinSubmitOnClick = async () => {
-        const signupData = await signupApi(inputUser);
-        if(!signupData.isSuceess) {
-            showFieldErrorMessage(signupData.fieldErrors);
-            return;
-        }
-
-        alert(`${signupData.ok.message}`);
-        navigate("/user/login");
-    }
-
     const showFieldErrorMessage = (fieldErrors) => {
         let EmptyFieldErrors = {
             username: <></>,
             password: <></>,
-            checkPassword: <></>,
-            name: <></>,
-            email: <></>,
         };
 
         for(let fieldError of fieldErrors) {
@@ -125,10 +103,31 @@ function UserJoinPage(props) {
         setFieldErrorMessages(EmptyFieldErrors);
     }
 
+    const handleLoginSubmitOnClick = async () => {
+        const signinData = await signinApi(inputUser);
+        if(!signinData.isSuceess) {
+            if(signinData.errorStatus === 'fieldError') {
+                showFieldErrorMessage(signinData.error);
+            }
+            if(signinData.errorStatus === 'loginError') {
+                let EmptyFieldErrors = {
+                    username: <></>,
+                    password: <></>,
+                };
+                setFieldErrorMessages(EmptyFieldErrors);
+                alert(signinData.error);
+            }
+            return;
+        }
+
+        localStorage.setItem("accessToken", "Bearer " + signinData.token.accessToken);
+        window.location.replace("/");
+    }
+
     return (
         <div css={layout}>
             <Link to={"/"}><h1 css={logo}>사이트 로고</h1></Link>
-            <div css={joinInfoBox}>
+            <div css={loginInfoBox}>
                 <div>
                     <input type="text" name='username' onChange={handleInputUserOnChange} value={inputUser.username} placeholder='아이디'/>
                     {fieldErrorMessages.username}
@@ -137,22 +136,10 @@ function UserJoinPage(props) {
                     <input type="password" name='password' onChange={handleInputUserOnChange} value={inputUser.password} placeholder='비밀번호'/>
                     {fieldErrorMessages.password}
                 </div>
-                <div>
-                    <input type="password" name='checkPassword' onChange={handleInputUserOnChange} value={inputUser.checkPassword} placeholder='비밀번호 확인'/>
-                    {fieldErrorMessages.checkPassword}
-                </div>
-                <div>
-                    <input type="text" name='name' onChange={handleInputUserOnChange} value={inputUser.name} placeholder='성명'/>
-                    {fieldErrorMessages.name}
-                </div>
-                <div>
-                    <input type="email" name='email' onChange={handleInputUserOnChange} value={inputUser.email} placeholder='이메일주소'/>
-                    {fieldErrorMessages.email}
-                </div>
             </div>
-            <button css={joinButton} onClick={handleJoinSubmitOnClick}>가입하기</button>
+            <button css={loginButton} onClick={handleLoginSubmitOnClick}>로그인</button>
         </div>
     );
 }
 
-export default UserJoinPage;
+export default UserLoginPage;

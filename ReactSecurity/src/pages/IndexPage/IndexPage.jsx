@@ -1,5 +1,6 @@
 import { css } from '@emotion/react';
 import React from 'react';
+import { useQueryClient } from 'react-query';
 import { Link } from 'react-router-dom';
 /** @jsxImportSource @emotion/react */
 
@@ -70,6 +71,10 @@ const rightBox = css`
 `;
 
 function IndexPage(props) {
+    const queryClient = useQueryClient();
+    const data = queryClient.getQueryData("accessTokenValidQuery");
+    console.log(data);
+
     return (
         <div css={layout}>
             <header css={header}>
