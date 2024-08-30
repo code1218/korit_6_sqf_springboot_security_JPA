@@ -36,7 +36,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.cors();
 
-        http.exceptionHandling().authenticationEntryPoint(authenticationHandler);
+        http.exceptionHandling()
+                .authenticationEntryPoint(authenticationHandler);
 
         http.authorizeRequests()
                 .antMatchers("/auth/**", "/h2-console/**")

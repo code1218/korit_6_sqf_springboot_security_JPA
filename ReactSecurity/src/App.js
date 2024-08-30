@@ -7,33 +7,38 @@ import { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 
 function App() {
-    const [ refresh, setRefresh ] = useState(false);
 
     const accessTokenValid = useQuery(
         ["accessTokenValidQuery"], 
         async () => {
-            setRefresh(false);
             return await instance.get("/auth/access", {
                 params: {
                     accessToken: localStorage.getItem("accessToken")
                 }
             });
         }, {
-            enabled: refresh,
-            refetchOnWindowFocus: false,
             retry: 0,
             onSuccess: response => {
                 console.log(response.data);
             },
+            onError: error => {
+                console.error(error);
+            }
         }
     );
 
-    useEffect(() => {
-        const accessToken = localStorage.getItem("accessToken");
-        if(!!accessToken) {
-            setRefresh(true);
+    const userInfo = useQuery(
+        ["userInfoQuery"],
+        async () => {
+            return await instance.get("/user/me");
+        },
+        {
+            enabled: accessTokenValid.isSuccess && accessTokenValid.data?.data,
+            onSuccess: response => {
+                console.log(response);
+            },
         }
-    }, [])
+    );
 
     return (
         <BrowserRouter>
