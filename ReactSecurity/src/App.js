@@ -16,14 +16,10 @@ function App() {
                     accessToken: localStorage.getItem("accessToken")
                 }
             });
-        }, {
+        }, 
+        {
             retry: 0,
-            onSuccess: response => {
-                console.log(response.data);
-            },
-            onError: error => {
-                console.error(error);
-            }
+            refetchOnWindowFocus: false,
         }
     );
 
@@ -34,9 +30,7 @@ function App() {
         },
         {
             enabled: accessTokenValid.isSuccess && accessTokenValid.data?.data,
-            onSuccess: response => {
-                console.log(response);
-            },
+            refetchOnWindowFocus: false,
         }
     );
 
