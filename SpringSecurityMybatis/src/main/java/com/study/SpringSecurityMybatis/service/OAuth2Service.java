@@ -1,5 +1,6 @@
 package com.study.SpringSecurityMybatis.service;
 
+import com.study.SpringSecurityMybatis.dto.request.ReqOAuth2MergeDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -10,6 +11,7 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -23,16 +25,27 @@ public class OAuth2Service implements OAuth2UserService {
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oAuth2User = defaultOAuth2UserService.loadUser(userRequest);
+        Map<String, Object> attributes = oAuth2User.getAttributes();
 
-        String id = oAuth2User.getName();
+        Map<String, Object> oAuth2Attributes = new HashMap<>();
+        oAuth2Attributes.put("provider", userRequest.getClientRegistration().getClientName());
 
-        if(userRequest.getClientRegistration().getClientName().equals("Naver")) {
-            Map<String, Object> attributes = (Map<String, Object>) oAuth2User.getAttribute("response");
-            id = (String) attributes.get("id");
+        switch (userRequest.getClientRegistration().getClientName()) {
+            case "Google":
+                oAuth2Attributes.put("id", attributes.get("sub").toString());
+                break;
+            case "Naver":
+                attributes = (Map<String, Object>) attributes.get("response");
+                oAuth2Attributes.put("id", attributes.get("id").toString());
+                break;
+            case "Kakao":
         }
 
+        return new DefaultOAuth2User(new HashSet<>(), oAuth2Attributes, "id");
+    }
 
-        return new DefaultOAuth2User(new HashSet<>(), oAuth2User.getAttributes(), id);
+    public void merge(com.study.SpringSecurityMybatis.entity.OAuth2User oAuth2User) {
+
     }
 
 }
