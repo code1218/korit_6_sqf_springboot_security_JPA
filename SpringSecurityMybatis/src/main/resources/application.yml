@@ -12,6 +12,32 @@ spring:
       enabled: true
       path: /h2-console
 
+  security:
+    oauth2:
+      client:
+        provider:
+          naver:
+            authorizationUri: https://nid.naver.com/oauth2.0/authorize
+            tokenUri: https://nid.naver.com/oauth2.0/token
+            userInfoUri: https://openapi.naver.com/v1/nid/me
+            userNameAttribute: response
+
+        registration:
+          google:
+            clientId: 1073837110019-ea1d7qgt7692hmr2cjqb5fofiks6nji0.apps.googleusercontent.com
+            clientSecret: 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
+            authorizationGrantType: authorization_code
+            scope:
+              - profile
+          naver:
+            clientId: jwpMPuK7bYUdk3gDh6Rb
+            clientSecret: fwWoCBskY0
+            redirectUri: http://localhost:8080/login/oauth2/code/naver
+            authorizationGrantType: authorization_code
+            clientAuthenticationMethod: POST
+            clientName: Naver
+
+
 mybatis:
   mapper-locations:
     - /mappers/*.xml
