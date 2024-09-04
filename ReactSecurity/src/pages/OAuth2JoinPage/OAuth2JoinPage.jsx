@@ -2,7 +2,7 @@
 import { css } from "@emotion/react";
 import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { oauth2MergeApi } from "../../apis/oauth2Api";
+import { oAuth2SignupApi, oauth2MergeApi } from "../../apis/oauth2Api";
 
 const layout = css`
     display: flex;
@@ -162,6 +162,7 @@ function OAuth2JoinPage(props) {
             provider: searchParams.get("provider"),
         }
         const mergeData = await oauth2MergeApi(mergeUser);
+
         if (!mergeData.isSuceess) {
             if (mergeData.errorStatus === "loginError") {
                 alert(mergeData.error);
@@ -172,10 +173,24 @@ function OAuth2JoinPage(props) {
                 return;
             }
         }
+        alert("계정 통합이 완료되었습니다.");
+        navigate("/user/login");
     }
 
     const handleJoinSubmitOnClick = async () => {
+        const joinUser = {
+            ...inputUser,
+            oauth2Name: searchParams.get("oAuth2Name"),
+            provider: searchParams.get("provider"),
+        }
 
+        const joinData = await oAuth2SignupApi(joinUser);
+        if (!joinData.isSuceess) {
+            showFieldErrorMessage(joinData.fieldErrors);
+            return;
+        }
+        alert("회원가입이 완료되었습니다.");
+        navigate("/user/login");
     }
 
     const showFieldErrorMessage = (fieldErrors) => {

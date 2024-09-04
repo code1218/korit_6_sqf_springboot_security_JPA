@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
+import { deleteObject, getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import React, { useState } from 'react';
 import { useQueryClient } from 'react-query';
 import { storage } from '../../firebase/firebase';
@@ -42,10 +42,10 @@ const progressBox = css`
 function UserProfilePage(props) {
     const queryClient = useQueryClient();
     const userInfoState = queryClient.getQueryState("userInfoQuery");
-    const [ uploadPercent, setUploadPercent ] = useState(0);
+    const [uploadPercent, setUploadPercent] = useState(0);
 
     const handleImageChangeOnClick = () => {
-        if(window.confirm("프로필 사진을 변경하시겠습니까?")) {
+        if (window.confirm("프로필 사진을 변경하시겠습니까?")) {
             const fileInput = document.createElement("input");
             fileInput.setAttribute("type", "file");
             fileInput.setAttribute("accept", "image/*");
@@ -74,14 +74,14 @@ function UserProfilePage(props) {
                         queryClient.invalidateQueries(["userInfoQuery"]);
                     }
                 );
-                
+
             }
 
         }
     }
 
     const handleDefaultImgChangeOnClick = async () => {
-        if(window.confirm("기본이미지로 변경하시겠습니까?")) {
+        if (window.confirm("기본이미지로 변경하시겠습니까?")) {
             await updateProfileImgApi("");
             queryClient.invalidateQueries(["userInfoQuery"]);
         }

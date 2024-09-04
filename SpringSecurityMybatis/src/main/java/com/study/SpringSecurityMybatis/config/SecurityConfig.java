@@ -35,11 +35,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private OAuth2Service oAuth2Service;
 
-    @Bean
-    public BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.formLogin().disable();

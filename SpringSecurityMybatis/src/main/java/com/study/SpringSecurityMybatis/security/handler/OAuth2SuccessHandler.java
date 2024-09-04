@@ -2,6 +2,7 @@ package com.study.SpringSecurityMybatis.security.handler;
 
 import com.study.SpringSecurityMybatis.entity.User;
 import com.study.SpringSecurityMybatis.repository.UserMapper;
+import com.study.SpringSecurityMybatis.security.jwt.JwtProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
@@ -20,6 +21,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private JwtProvider jwtProvider;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -31,6 +34,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         User user = userMapper.findByOAuth2Name(oAuth2Name);
         if(user == null) {
             response.sendRedirect("http://localhost:3000/user/join/oauth2?oAuth2Name=" + oAuth2Name + "&provider=" + provider);
+            return;
         }
+        String accessToken = jwtProvider.generateAccessToken(user);
+        response.sendRedirect("http://localhost:3000/user/login/oauth2?accessToken=" + accessToken);
     }
 }
