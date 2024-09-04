@@ -7,6 +7,7 @@ import com.study.SpringSecurityMybatis.dto.request.ReqSigninDto;
 import com.study.SpringSecurityMybatis.dto.request.ReqSignupDto;
 import com.study.SpringSecurityMybatis.entity.OAuth2User;
 import com.study.SpringSecurityMybatis.exception.SignupException;
+import com.study.SpringSecurityMybatis.service.OAuth2Service;
 import com.study.SpringSecurityMybatis.service.TokenService;
 import com.study.SpringSecurityMybatis.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,8 @@ public class AuthenticationController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private OAuth2Service oAuth2Service;
 
     @Autowired
     private TokenService tokenService;
@@ -45,8 +48,8 @@ public class AuthenticationController {
     @PostMapping("/auth/oauth2/merge")
     public ResponseEntity<?> oAuth2Merge(@Valid @RequestBody ReqOAuth2MergeDto dto, BindingResult bindingResult) {
         OAuth2User oAuth2User = userService.mergeSignin(dto);
-
-        return ResponseEntity.ok().body(null);
+        oAuth2Service.merge(oAuth2User);
+        return ResponseEntity.ok().body(true);
     }
 
     @GetMapping("/auth/access")

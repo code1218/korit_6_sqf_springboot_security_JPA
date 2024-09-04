@@ -2,6 +2,7 @@
 import { css } from "@emotion/react";
 import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { oauth2MergeApi } from "../../apis/oauth2Api";
 
 const layout = css`
     display: flex;
@@ -160,6 +161,17 @@ function OAuth2JoinPage(props) {
             oauth2Name: searchParams.get("oAuth2Name"),
             provider: searchParams.get("provider"),
         }
+        const mergeData = await oauth2MergeApi(mergeUser);
+        if (!mergeData.isSuceess) {
+            if (mergeData.errorStatus === "loginError") {
+                alert(mergeData.error);
+                return;
+            }
+            if (mergeData.errorStatus === "fieldError") {
+                showFieldErrorMessage(mergeData.error);
+                return;
+            }
+        }
     }
 
     const handleJoinSubmitOnClick = async () => {
@@ -213,7 +225,7 @@ function OAuth2JoinPage(props) {
                                 {fieldErrorMessages.password}
                             </div>
                         </div>
-                        <button css={joinButton} onClick={handleJoinSubmitOnClick}>통합하기</button>
+                        <button css={joinButton} onClick={handleMergeSubmitOnClick}>통합하기</button>
                     </>
                     :
                     <>

@@ -1,6 +1,7 @@
 package com.study.SpringSecurityMybatis.service;
 
 import com.study.SpringSecurityMybatis.dto.request.ReqOAuth2MergeDto;
+import com.study.SpringSecurityMybatis.repository.OAuth2UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -21,6 +22,8 @@ public class OAuth2Service implements OAuth2UserService {
 
     @Autowired
     private DefaultOAuth2UserService defaultOAuth2UserService;
+    @Autowired
+    private OAuth2UserMapper oAuth2UserMapper;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -45,7 +48,7 @@ public class OAuth2Service implements OAuth2UserService {
     }
 
     public void merge(com.study.SpringSecurityMybatis.entity.OAuth2User oAuth2User) {
-
+        oAuth2UserMapper.save(oAuth2User);
     }
 
 }
